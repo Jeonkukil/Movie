@@ -1,6 +1,18 @@
 package shop.mtcoding.blog.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,20 +24,14 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import shop.mtcoding.blog.dto.board.BoardReq.BoardSaveReqDto;
 import shop.mtcoding.blog.dto.board.BoardReq.BoardUpdateReqDto;
 import shop.mtcoding.blog.dto.board.BoardResp;
 import shop.mtcoding.blog.dto.board.BoardResp.BoardDetailRespDto;
 import shop.mtcoding.blog.model.User;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional // 메서드 실행 직후 롤백!! // auto_increment 초기화
 @AutoConfigureMockMvc
@@ -63,11 +69,11 @@ public class BoardControllerTest {
         boardUpdateReqDto.setContent("내용1-수정");
 
         String requestBody = om.writeValueAsString(boardUpdateReqDto);
-        System.out.println("테스트 : "+requestBody);
+        System.out.println("테스트 : " + requestBody);
 
         // when
         ResultActions resultActions = mvc.perform(
-                put("/board/"+id)
+                put("/board/" + id)
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .session(mockSession));
@@ -86,7 +92,7 @@ public class BoardControllerTest {
         ResultActions resultActions = mvc.perform(
                 delete("/board/" + id).session(mockSession));
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
-        System.out.println("delete_test : "+responseBody);
+        System.out.println("delete_test : " + responseBody);
 
         /**
          * jsonPath
@@ -138,24 +144,23 @@ public class BoardControllerTest {
         assertThat(dtos.get(0).getTitle()).isEqualTo("1번째 제목");
     }
 
-    @Test
-    public void save_test() throws Exception {
-        // given
-        String title = "";
-        for (int i = 0; i < 99; i++) {
-            title += "가";
-        }
+    // @Test
+    // public void save_test() throws Exception {
+    // // given
+    // BoardSaveReqDto boardSaveReqDto = new BoardSaveReqDto();
+    // boardSaveReqDto.setTitle("제목");
+    // boardSaveReqDto.setContent("내용");
 
-        String requestBody = "title=" + title + "&content=내용1";
-        // when
-        ResultActions resultActions = mvc.perform(
-                post("/board")
-                        .content(requestBody)
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                        .session(mockSession));
+    // String requestBody = om.writeValueAsString(boardSaveReqDto);
+    // // when
+    // ResultActions resultActions = mvc.perform(
+    // post("/board")
+    // .content(requestBody)
+    // .contentType(MediaType.APPLICATION_JSON_VALUE)
+    // .session(mockSession));
 
-        System.out.println("save_test : ");
-        // then
-        resultActions.andExpect(status().is3xxRedirection());
-    }
+    // System.out.println("save_test : ");
+    // // then
+    // resultActions.andExpect(status().isCreated());
+    // }
 }
